@@ -11,7 +11,7 @@
     <bean id="dataSource" class="com.alibaba.druid.pool.DruidDataSource">
         <property name="username" value="${jdbc.username}"/>
         <property name="password" value="${jdbc.password}"/>
-        <property name="driverClassName" value="${jdbc.driverName}"/>
+        <property name="driverClassName" value="${jdbc.driverName}"/> <!-- DruidDataSource中有getDriverClassName方法 -->
         <property name="url" value="${jdbc.url}"/>
     </bean>
     <!-- jdbcTemplate注册为Bean对象 -->
