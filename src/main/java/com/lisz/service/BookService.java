@@ -3,6 +3,7 @@ package com.lisz.service;
 import com.lisz.dao.BookDao;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.FileInputStream;
@@ -29,7 +30,7 @@ public class BookService {
 	 * rollBackfor: RuntimeException和Error会默认回滚，但是其他的不回滚，这里强制指定一下需要回滚的其他的Throwables
 	 * rollbackForClassName：
 	 */
-	@Transactional
+	@Transactional(propagation = Propagation.REQUIRES_NEW)
 	public void buyBook(int userId, int bookId, int quantity) {
 		double bookPrice = bookDao.getPriceByBookId(bookId);
 		double balance = bookDao.getBalanceByUserId(userId);
@@ -40,10 +41,15 @@ public class BookService {
 		bookDao.updateBalance(userId, balance);
 		// 在两个写操作之间抛出异常, 如果加上try catch，在catch里面不throw 出异常，则不会触发事务回滚，顺利完成
 		// 如果这个try全部包住，则只会更新balance不会更新库存
-		int i = 1/0;
+		//int i = 1/0;
 		bookDao.updateStock(bookId, quantity);
 		System.out.println(String.format("User %s just bought %s books with book ID: %s",
 				userId, quantity, bookId));
+//		try {
+//			int i = 1/0;
+//		} catch (Exception e) {
+//			e.printStackTrace();
+//		}
 	}
 
 	// 测试timeout
@@ -146,6 +152,25 @@ public class BookService {
 
 		new FileInputStream("aaa.txt");
 	}
+
+	@Transactional(propagation = Propagation.REQUIRES_NEW)
+	public void updatePrice(int bookId, double price) {
+		bookDao.updatePrice(bookId, price);
+		//int i = 1 / 0;
+	}
+
+	@Transactional
+	public void mult() {
+		buyBook(1, 1, 1);
+		updatePrice(1, 2);
+		int i = 1/0;
+	}
+
+
+
+
+
+
 
 
 

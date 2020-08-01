@@ -33,4 +33,9 @@ public class BookDao {
 		String sql = "select stock from book_stock where id = ?";
 		return template.queryForObject(sql, int.class, bookId);
 	}
+
+	public int updatePrice(int bookId, double price) {
+		String sql = "update book set price = ? where id = ?";
+		return template.update(sql, price, bookId);
+	}
 }
