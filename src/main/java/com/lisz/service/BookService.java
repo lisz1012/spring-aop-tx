@@ -17,17 +17,23 @@ public class BookService {
 
 	/**
 	 * propagation: 传播特性：表示不同的事务之间执行的关系，事务套着事务
-	 * isolation：隔离级别，4种隔离级别，会引发不同的数据错乱问题
+	 * isolation：隔离级别，4种隔离级别，会引发不同的数据错乱问题。DEFAULT使用数据库自己的默认级别. 以下是四种隔离级别：
+	 *            未提交读（Read uncommitted）
+	 *            已提交读（Read committed）
+	 *            可重复读（Repeatable read）
+	 *            可串行化（Serializable ）
 	 * timeout：超时时间 timeout = 3 就是3秒钟之后事务会报异常org.springframework.transaction.TransactionTimedOutException
 	 *          然后正常回滚
 	 * readonly：只读事务:如果配置了只读事务，那么在事务运行期间，不允许对数据进行修改，否则抛出异常:Caused by:
 	 *          java.sql.SQLException: Connection is read-only. Queries leading to data modification are not allowed
 	 *          在做数据查询的时候，加上这个标识就是所有读操作执行完毕之前不允许有其他的写操作对被读取的数据进行修改。所以几个操作里面
-	 *          既有读又有写，则不要设置这一项。设置哪些异常不会回滚数据
+	 *          既有读又有写，则不要设置这一项。设置哪些异常不会回滚数据。
+	 *          如果只是执行一条查询语句，开不开事物其实是一样的，如果有多条同样的查询，最好设成只读的
 	 * noRollBackfor: noRollbackFor = {ArithmeticException.class}
-	 * noRollbackForClassName: 接受一个String， 跟上面是一个功能的两种不同的方式而已
+	 * noRollbackForClassName: 接受一个String， 跟上面是一个功能的两种不同的方式而已, 为的是屏蔽和忽略异常
 	 * 设置哪些异常回滚
-	 * rollBackfor: RuntimeException和Error会默认回滚，但是其他的不回滚，这里强制指定一下需要回滚的其他的Throwables
+	 * rollBackfor: RuntimeException和Error会默认回滚，但是其他的不回滚，这里强制指定一下需要回滚的其他的Throwables，比如
+	 *              java.io.FileNotFoundException
 	 * rollbackForClassName：
 	 */
 	@Transactional(propagation = Propagation.REQUIRES_NEW)
@@ -52,7 +58,7 @@ public class BookService {
 //		}
 	}
 
-	// 测试timeout
+	// 测试timeout，超过（>=）3秒事务就不会成功
 	@Transactional(timeout = 3)
 	public void buyBook02(int userId, int bookId, int quantity) {
 		double bookPrice = bookDao.getPriceByBookId(bookId);
@@ -72,7 +78,7 @@ public class BookService {
 				userId, quantity, bookId));
 	}
 
-	// 测试readonly
+	// 测试readonly，如果readOnly = true，则在事务运行期间不允许对数据进行修改，否则抛出异常
 	@Transactional(readOnly = true)
 	public void buyBook03(int userId, int bookId, int quantity) {
 		double bookPrice = bookDao.getPriceByBookId(bookId);
